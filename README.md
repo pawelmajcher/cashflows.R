@@ -2,35 +2,42 @@
 
 Simple functions for visualizing and discounting cash flows (DCF) in R
 
-## Czym jest cashflows.R?
+## What is cashflows.R?
 
-cashflows.R to niewielki skrypt w R, który ułatwia pracę nad przepływami pieniężnymi (cash flows). Umożliwia między innymi łączenie różnych przepływów, zapisywanie w formie przepływu rent i obligacji, a także obliczanie wartości przepływu w danym czasie według podanego oprocentowania prostego lub złożonego.
+cashflows.R is a small R file with cashflow-related functions. Currently supported operations are:
 
-## Rozpoczynanie pracy
+- creating new cashflow objects based on vectors of transaction values and periods,
+- creating cashflows for bonds and annuities,
+- merging two or more cashflow objects into one,
+- calculating the value of a cashflow in time with compound interest,
+- calculating the value of a cashflow in time with simple interest, using two methods:
+    - equivalent cash flows,
+    - retrospective-prospective.
 
-Można dołączyć cashflows.R do swojego skryptu dopisując na początku
-komendę
+## Usage
+
+You can add cashflows.R functions to your script or working environment directly from Github by using
 
 ``` r
 source("https://github.com/pawelmajcher/cashflows.R/blob/main/cashflows.R?raw=true")
 ```
 
-która dodaje wszystkie funkcje do twojej przestrzeni roboczej.
+This code is not actively maintained as of now, but is subject to change. If you rely on the current behavior of the code, consider downloading the code or using the raw link to a specific commit version.
 
-## Dostępne funkcje
+## Functions
 
 ### cashflow(payments, periods)
 
-Funkcja `cashflow` przyjmuje wektor z wartościami poszczególnych transakcji oraz wektor z czasem ich wykonania, i porządkuje je tak, aby transakcje były zapisane w odpowiedniej kolejności i zwraca listę w R, która przez inne funkcje jest rozumiana jako przepływ pieniężny.
+The `cashflow` function takes a vector with the value of each transaction and a vector with its (unit-agnostic, numeric) execution time, and orders them and returns a list with two vector elements (payments and periods).
 
-#### Argumenty
+#### Arguments
 
-| Nazwa      | Opis                                                      | Przyjmowana wartość                                  | Wymagany                          |
+| Name      | Description                                                      | Possible values                                   | Required                          |
 |:-----|:-------------------------|:-----------------------|:---------------|
-| `payments` | wektor z wartościami poszczególnych transakcji            | wektor liczbowy o dowolnej długości                  | Tak                               |
-| `periods`  | wektor z czasem przeprowadzenia poszczególnych transakcji | wektor liczbowy o takiej samej długości jak payments | Nie, domyślnie 1:length(payments) |
+| `payments` | vector with transaction values            | numeric vector of any length                  | Yes                               |
+| `periods`  | vector with transaction time | numeric vector equal in length to `payments` | No, `1:length(payments)` by default |
 
-#### Przykłady
+#### Examples
 
 ``` r
 cashflow_example_1 = cashflow(payments = c(10,30,40,10))
@@ -56,10 +63,9 @@ cashflow_example_2
 
 ### cfmerge(…)
 
-Funkcja `cfmerge` przyjmuje i łączy (scala) dowolną liczbę przepływów
-pieniężnych w jeden.
+The `cfmerge` function merges any number of cashflows as defined above into one. Multiple transactions made in the same period are joined into one (a sum).
 
-#### Przykłady
+#### Examples
 
 ``` r
 cashflow_example_3 = cfmerge(cashflow_example_1, cashflow_example_2, cashflow(-100, periods=5))
@@ -74,17 +80,16 @@ cashflow_example_3
 
 ### cfmatrix(cf, vertical)
 
-Funkcja `cfmatrix` zwraca dany przepływ pieniężny jako macierz. Jest
-przydatna, gdy chcemy wyświetlić przepływ i ręcznie go przeanalizować.
+The `cfmatrix` function returns the cashflow as a matrix.
 
-#### Argumenty
+#### Arguments
 
-| Nazwa      | Opis                                                                                                   | Przyjmowana wartość                                | Wymagany                                            |
+| Name      | Description                                                      | Possible values                                   | Required                          |
 |:----|:--------------------------------|:----------------|:-----------------|
-| `cf`       | przepływ, który chcemy zapisać jako macierz                                                            | przepływ pieniężny wygenerowany przez inną funkcję | Tak                                                 |
-| `vertical` | opcja zapisu kolejnych transakcji pod sobą zamiast obok siebie (warto wybrać dla dłuższych przepływów) | wartość logiczna                                   | Nie, domyślnie `FALSE` (kolejne transakcje poziomo) |
+| `cf`       | the cashflow to represent as a matrix                                                            | output of another function | Yes                                                 |
+| `vertical` | TRUE if transactions are to be assigned per row | boolean                                   | No, `FALSE` by default (transactions assigned per column) |
 
-#### Przykłady
+#### Examples
 
 ``` r
 cfmatrix(cashflow_example_2)
@@ -108,18 +113,17 @@ cfmatrix(cashflow_example_3, vertical=TRUE)
 
 ### annuity(period, amount, due)
 
-Funkcja `annuity` przyjmuje parametry danej renty i zwraca odpowiadający
-jej przepływ pieniężny.
+The `annuity` function returns a cashflow based on parameters of an annuity.
 
-#### Argumenty
+#### Arguments
 
-| Nazwa    | Opis                                   | Przyjmowana wartość                                                           | Wymagany                                 |
+| Name      | Description                                                      | Possible values                                   | Required                          |
 |:----|:----------------|:--------------------------------|:-----------------|
-| `period` | liczba okresów (długość) trwania renty | liczba naturalna lub `Inf` (przybliżenie renty wieczystej jako 10000 okresów) | Tak                                      |
-| `amount` | wysokość renty                         | liczba                                                                        | Nie, domyślnie `1`                       |
-| `due`    | płatność renty z góry                  | wartość logiczna                                                              | Nie, domyślnie `FALSE` (płatność z dołu) |
+| `period` | number of periods (length) of annuity | positive integer or `Inf` (perpetuity approximated by 10,000) | Yes                                      |
+| `amount` | payment amount                         | numeric                                                                        | No, `1` by default                       |
+| `due`    | annuity paid upfront                  | boolean                                                              | No, `FALSE` by default (annuity paid in arrear) |
 
-#### Przykłady
+#### Examples
 
 ``` r
 cashflow_example_4 = annuity(period = 6, amount = 150, due = TRUE)
@@ -132,19 +136,18 @@ cfmatrix(cashflow_example_4)
 
 ### bond(principal, maturity, couponRate, boughtFor)
 
-Funkcja `bond` przyjmuje parametry danej obligacji i zwraca
-odpowiadający jej przepływ pieniężny.
+The `bond` function returns a cashflow based on parameters of a bond.
 
-#### Argumenty
+#### Arguments
 
-| Nazwa        | Opis                                       | Przyjmowana wartość                   | Wymagany                                                         |
+| Name      | Description                                                      | Possible values                                   | Required                          |
 |:------|:-------------------|:-----------------|:----------------------------|
-| `principal`  | wartość nominalna obligacji                | liczba                                | Tak                                                              |
-| `maturity`   | termin zapadalności obligacji              | liczba naturalna                      | Tak                                                              |
-| `couponRate` | stała lub zmienna stopa kuponowa obligacji | liczba lub wektor długości `maturity` | Nie, domyślnie 0 (obligacja zerokuponowa)                        |
-| `boughtFor`  | cena, za jaką obligacja została zakupiona  | liczba                                | Nie, domyślnie 0 (transakcja zakupu obligacji nie jest dopisana) |
+| `principal`  | the principal value of a bond                | numeric                                | Tak                                                              |
+| `maturity`   | termin zapadalności obligacji              | positive integer                      | Tak                                                              |
+| `couponRate` | constant or variable coupon rate | numeric or numeric vector of the length equal to value of `maturity` | No, 0 by default (zero-coupon bond)                        |
+| `boughtFor`  | the price paid for the bond at point zero  | numeric                                | No, 0 by default (bond purchase not included in the cashflow) |
 
-#### Przykłady
+#### Examples
 
 ``` r
 cashflow_example_5 = bond(principal = 5000, maturity = 5, couponRate = 0.03)
@@ -166,30 +169,25 @@ cfmatrix(cashflow_example_6)
 
 ### timevalue(cf, v, i, t, as.cashflow)
 
-Funkcja `timevalue` oblicza wartość przepływu pieniężnego w danej chwili
-przy konkretnych rynkowych stopach procentowych i oprocentowaniu
-złożonym.
+The `timevalue` function calculates the value of a cashflow at a given time for given interest rates, using compound interest.
 
-#### Argumenty
+#### Arguments
 
-| Nazwa         | Opis                                                               | Przyjmowana wartość                                  | Wymagany                                       |
+| Name      | Description                                                      | Possible values                                   | Required                          |
 |:------|:-------------------------|:--------------------|:------------------|
-| `cf`          | przepływ, którego wartość chcemy obliczyć                          | przepływ pieniężny wygenerowany przez inną funkcję   | Tak                                            |
-| `v`           | wartość/wartości czynnika dyskontującego                           | liczba lub wektor długości równej liczbie transakcji | Tak, o ile nie zdefiniowano `i`                |
-| `i`           | wartość/wartości stopy procentowej                                 | liczba lub wektor długości równej liczbie transakcji | Tak, o ile nie zdefiniowano `v`                |
-| `t`           | czas, dla którego liczymy wartość                                  | liczba                                               | Nie, domyślnie 0 (wartość obecna)              |
-| `as.cashflow` | zwrócenie przepływu zdyskontowanego do danej chwili zamiast liczby | wartość logiczna                                     | Nie, domyślnie `FALSE` (funkcja zwraca liczbę) |
+| `cf`          | the cashflow to discount                          | output of another function   | Yes                                            |
+| `v`           | discount factor(s)                           | numeric or numeric vector of the same length as `cf$payments` vector | Yes, unless `i` defined                |
+| `i`           | interest rate(s)                                 | numeric or numeric vector of the same length as `cf$payments` vector | Yes, unless `v` defined                |
+| `t`           | time we calculate the value of cashflow for                                  | numeric                                               | No, 0 by default (present value)              |
+| `as.cashflow` | return a cashflow with values discounted separately for each period | boolean                                     | No, `FALSE` by default (total numeric value returned) |
 
-**UWAGA:** Jeśli wprowadzasz `v` lub `i` jako wektor, upewnij się, że
-nie wpisujesz wartości dla kolejnych okresów zamiast kolejnych
-transakcji.  
-**UWAGA 2:** Wprowadź jedną z wartości `v` lub `i`, ale nie obie
-jednocześnie.
+> **Note:** You can use either `v` or `i`, but using both in one function execution will return an error.
 
-#### Przykłady
+#### Examples
 
 ``` r
-# Ile warte są kolejne wypłaty renty z przykładu 4? (załóżmy od 1 roku malejącą stopę procentową z 5% do 1% w kolejnych wypłatach) (stopa w roku 0 nie ma znaczenia, więc przyjęliśmy 6% dla ułatwienia)
+# How much is each annuity payment worth in Example 4? Let's assume interest rates are decreasing each period starting with 5 p. p.
+
 cashflow_example_4_rates = seq(0.06, 0.01, by=-0.01)
 cashflow_example_4_present_values = timevalue(cashflow_example_4, i = cashflow_example_4_rates, as.cashflow = TRUE)
 cfmatrix(cashflow_example_4_present_values)
@@ -200,7 +198,8 @@ cfmatrix(cashflow_example_4_present_values)
     ## Amount       150  142.8571  138.6834  137.2712  138.5768  142.7199
 
 ``` r
-# Ile będzie warta obligacja z przykładu 5 w chwili jej zapadalności? (załóżmy stały czynnik dyskontujący 0.98)
+# What will be the value of the bond from Example 5 at its maturity date, assuming a constant discount factor of 0.98?
+
 cashflow_example_5_maturity_value = timevalue(cashflow_example_5, v = 0.98, t = 5)
 cashflow_example_5_maturity_value
 ```
@@ -208,64 +207,59 @@ cashflow_example_5_maturity_value
     ## [1] 5781.243
 
 ``` r
-# Ile zarobiliśmy na obligacji z przykładu 6? (załóżmy stałą stopę procentową 5%)
+# How much money do we make by buying a bond from Example 6, assuming a 5% constant interest rate?
+
 cashflow_example_6_present_value = timevalue(cashflow_example_6, i = 0.05)
 cashflow_example_6_present_value
 ```
 
     ## [1] 2.278265
 
-**UWAGA:** Istnieje też druga funkcja do obliczania obecnej wartości
-przepływu przy oprocentowaniu złożonym, `presentvalue`. Występuje ona ze
-względu na zgodność z poprzednimi wersjami skryptu i nie ma potrzeby jej
-stosowania (domyślnie `timevalue` i tak oblicza wartość bieżącą).
+> **Note:** You can use `presentvalue` as a shortcut for `timevalue` if `t` is equal to zero.
 
 ### simpletimevalue(cf, i, method, t, as.cashflow)
 
-Funkcja `simpletimevalue` oblicza wartość przepływu pieniężnego w danej
-chwili przy konkretnych rynkowych stopach procentowych i oprocentowaniu
-prostym.
+The `timevalue` function calculates the value of a cashflow at a given time for given interest rates, using simple interest.
 
-#### Argumenty
+#### Arguments
 
-| Nazwa         | Opis                                                                                                                         | Przyjmowana wartość                                  | Wymagany                                       |
+| Name      | Description                                                      | Possible values                                   | Required                          |
 |:----|:------------------------------------|:---------------|:--------------|
-| `cf`          | przepływ, którego wartość chcemy obliczyć                                                                                    | przepływ pieniężny wygenerowany przez inną funkcję   | Tak                                            |
-| `i`           | wartość/wartości stopy procentowej                                                                                           | liczba lub wektor długości równej liczbie transakcji | Tak                                            |
-| `t`           | czas, dla którego liczymy wartość                                                                                            | liczba                                               | Nie, domyślnie 0 (wartość obecna)              |
-| `method`      | metoda obliczania wartości przepływu pieniężnego (przepływy równoważne/ekwiwalentne lub metoda retrospektywnie-prospektywna) | `e` lub `rp`                                         | Tak, chyba że `t == 0`                         |
-| `as.cashflow` | zwrócenie przepływu zdyskontowanego do danej chwili zamiast liczby                                                           | wartość logiczna                                     | Nie, domyślnie `FALSE` (funkcja zwraca liczbę) |
+| `cf`          | the cashflow to discount                                                                                    | output of another function   | Yes                                            |
+| `i`           | interest rate(s)                                                                                           | numeric or numeric vector of the same length as `cf$payments` vector | Yes                                            |
+| `t`           | time we calculate the value of cashflow for                                                                                            | numeric                                               | No, 0 by default (present value)              |
+| `method`      | method of calculating cash flow value (equivalent flows or retrospective/prospective method) | `e` or `rp`                                         | Yes, unless `t == 0` (with identical results regardless of method)                         |
+| `as.cashflow` | return a cashflow with values discounted separately for each period                                                           | boolean                                     | No, `FALSE` by default (total numeric value returned) |
 
-#### Przykłady
+#### Examples
 
 ``` r
-# Ile będzie warta obligacja z przykładu 5 w chwili jej zapadalności? (załóżmy stałą stopę procentową 7% i oprocentowanie proste)
+# What will be the value of the bond from Example 5 at its maturity date, assuming a constant simple interest rate of 7 p.p.?
+
 cashflow_example_5_maturity_value_si_rp = simpletimevalue(cashflow_example_5, i = 0.07, t = 5, method = "rp")
 cashflow_example_5_maturity_value_si_e = simpletimevalue(cashflow_example_5, i = 0.07, t = 5, method = "e")
 
-# kolejno wynik metodą retrospektywnie-prospektywn i przepływów równoważnych:
+# results for retrospective/prospective and equivalent flows method:
 c(cashflow_example_5_maturity_value_si_rp, cashflow_example_5_maturity_value_si_e)
 ```
 
     ## [1] 5855.000 5842.442
 
 ``` r
-# Ile zarobiliśmy na obligacji z przykładu 6? (załóżmy stałą stopę procentową 5% i oprocentowanie proste)
+# How much money do we make by buying a bond from Example 6, assuming a 5% constant simple interest rate?
 cashflow_example_6_present_value_si = simpletimevalue(cashflow_example_6, i = 0.05)
 cashflow_example_6_present_value_si
 ```
 
     ## [1] 3.333333
 
-## Więcej przykładów
+## Example exercises
 
-### Zadanie 1
+### Exercise 1
 
-Wyznacz wartość obecną przepływu nieskończonego, który dla parzystych
-chwil n wypłaca wartość *1/n*, a dla nieparzystych wypłaca *1/n^2* dla
-*i = 0.02*.
+Determine the present value of an infinite cash flow that returns $\frac{1}{n}$ for even periods and $\frac{1}{n^2}$ for odd periods, given $i = 2\%$.
 
-**Rozwiązanie:**
+**Solution:**
 
 ``` r
 cashflow_task_1_1 = cashflow(periods = 2*(1:10000), payments = 1/(2*(1:10000)))
@@ -279,14 +273,16 @@ timevalue(cashflow_task_1, i=0.02)
 
     ## [1] 23.93494
 
-### Zadanie 2
+### Exercise 2
+
+Find the difference between the current value of a 10-year 400 PLN annuity paid upfront and the value of the annuity at the moment of the last payment, assuming constant $i = 10\%$ simple interest.
 
 Podaj różnicę między wartością renty dziesięcioletniej płatnej z góry o
 wysokości 400 zł w chwili ostatniej wypłaty a teraz. Załóż
 oprocentowanie proste w wysokości i=0.10 i metodę przepływów
 równoważnych.
 
-**Rozwiązanie:**
+**Solution:**
 
 ``` r
 cashflow_task_2 = annuity(period = 10, amount = 400, due = TRUE)
@@ -306,16 +302,14 @@ simpletimevalue(cashflow_task_2, i = 0.1, t = 9, method="e") - simpletimevalue(c
 
     ## [1] 2587.577
 
-### Zadanie 3
+### Exercise 3
 
-Dla jakiej stopy przy oprocentowaniu prostym dziesięcioletnia obligacja
-zerokuponowa jest równoważna tej obligacji przy stopie 5% i
-oprocentowaniu złożonym?
+What simple interest rate does a 10-year zero-coupon bond need to  to be equivalent to the same bond with $i = 5\%$ compound interest rate?
 
-**Rozwiązanie:**
+**Solution:**
 
 ``` r
-# bierzemy dowolny dodatni nominał obligacji
+# bonds with the same principal are equivalent for comparison, assuming 1
 cashflow_task_3 = bond(principal = 1, maturity = 10)
 for (i in (1:1000)/1000) {
   if (simpletimevalue(cashflow_task_3, i=i) < timevalue(cashflow_task_3, i=0.05)) {
