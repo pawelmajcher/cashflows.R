@@ -22,6 +22,8 @@ You can add the newest released version of cashflows.R functions to your script 
 source("https://github.com/pawelmajcher/cashflows.R/blob/v0.2.1/cashflows.R?raw=true")
 ```
 
+**[💬 Please leave a comment in the discussions tab if you find this useful or want to suggest an improvement, thanks! 🙏](https://github.com/pawelmajcher/cashflows.R/discussions/1)**
+
 > [!NOTE]
 > This code is not actively maintained as of now, but is subject to change. If you rely on the features of the code not available in the latest released version, consider downloading the code or using the raw link to a main branch version, such as
 > ``` r
@@ -65,6 +67,8 @@ cashflow_example_2
     ## $periods
     ## [1] 0 2 5
 
+---
+
 ### cfmerge(…)
 
 The `cfmerge` function merges any number of cashflows as defined above into one. Multiple transactions made in the same period are joined into one (a sum).
@@ -81,6 +85,8 @@ cashflow_example_3
     ## 
     ## $periods
     ## [1] 0 1 2 3 4 5
+
+---
 
 ### cfmatrix(cf, vertical)
 
@@ -115,6 +121,8 @@ cfmatrix(cashflow_example_3, vertical=TRUE)
     ## Payment 5      4     10
     ## Payment 6      5    -70
 
+---
+
 ### annuity(period, amount, due)
 
 The `annuity` function returns a cashflow based on parameters of an annuity.
@@ -137,6 +145,8 @@ cfmatrix(cashflow_example_4)
     ##        Payment 1 Payment 2 Payment 3 Payment 4 Payment 5 Payment 6
     ## Period         0         1         2         3         4         5
     ## Amount       150       150       150       150       150       150
+
+---
 
 ### bond(principal, maturity, couponRate, boughtFor)
 
@@ -170,6 +180,8 @@ cfmatrix(cashflow_example_6)
     ##        Payment 1 Payment 2
     ## Period         0        10
     ## Amount       -10        20
+
+---
 
 ### timevalue(cf, v, i, t, as.cashflow)
 
@@ -222,6 +234,8 @@ cashflow_example_6_present_value
 ```
 
     ## [1] 2.278265
+
+---
 
 ### simpletimevalue(cf, i, method, t, as.cashflow)
 
