@@ -16,14 +16,17 @@ cashflows.R is a small R file with cashflow-related functions. Currently support
 
 ## Usage
 
-You can add cashflows.R functions to your script or working environment directly from Github by using
+You can add the newest released version of cashflows.R functions to your script or working environment directly from Github by using
 
 ``` r
-source("https://github.com/pawelmajcher/cashflows.R/blob/main/cashflows.R?raw=true")
+source("https://github.com/pawelmajcher/cashflows.R/blob/v0.2.1/cashflows.R?raw=true")
 ```
 
-> [!CAUTION]
-> This code is not actively maintained as of now, but is subject to change. If you rely on the current behavior of the code, consider downloading the code or using the raw link to a specific version.
+> [!NOTE]
+> This code is not actively maintained as of now, but is subject to change. If you rely on the features of the code not available in the latest released version, consider downloading the code or using the raw link to a main branch version, such as
+> ``` r
+> source("https://github.com/pawelmajcher/cashflows.R/blob/main/cashflows.R?raw=true")
+> ```
 
 ## Functions
 
