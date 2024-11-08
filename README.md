@@ -6,11 +6,11 @@ Simple functions for visualizing and discounting cash flows (DCF) in R
 
 cashflows.R is a small R file with cashflow-related functions. Currently supported operations are:
 
-- creating new cashflow objects based on vectors of transaction values and periods,
-- creating cashflows for bonds and annuities,
-- merging two or more cashflow objects into one,
-- calculating the value of a cashflow in time with compound interest,
-- calculating the value of a cashflow in time with simple interest, using two methods:
+- [creating new cashflow objects based on vectors of transaction values and periods](#cashflowpayments-periods),
+- creating cashflows for [bonds](#bondprincipal-maturity-couponrate-boughtfor) and [annuities](#annuityperiod-amount-due),
+- [merging two or more cashflow objects into one](#cfmerge),
+- [calculating the value of a cashflow in time with compound interest](#timevaluecf-v-i-t-ascashflow),
+- [calculating the value of a cashflow in time with simple interest](#simpletimevaluecf-i-method-t-ascashflow), using one of two methods:
     - equivalent cash flows,
     - retrospective-prospective.
 
@@ -22,7 +22,8 @@ You can add cashflows.R functions to your script or working environment directly
 source("https://github.com/pawelmajcher/cashflows.R/blob/main/cashflows.R?raw=true")
 ```
 
-This code is not actively maintained as of now, but is subject to change. If you rely on the current behavior of the code, consider downloading the code or using the raw link to a specific commit version.
+> [!CAUTION]
+> This code is not actively maintained as of now, but is subject to change. If you rely on the current behavior of the code, consider downloading the code or using the raw link to a specific version.
 
 ## Functions
 
@@ -181,7 +182,11 @@ The `timevalue` function calculates the value of a cashflow at a given time for 
 | `t`           | time we calculate the value of cashflow for                                  | numeric                                               | No, 0 by default (present value)              |
 | `as.cashflow` | return a cashflow with values discounted separately for each period | boolean                                     | No, `FALSE` by default (total numeric value returned) |
 
-> **Note:** You can use either `v` or `i`, but using both in one function execution will return an error.
+> [!WARNING]
+> You can use either `v` or `i`, but using both in one function execution will return an error.
+
+> [!TIP]
+> You can use `presentvalue` as a shortcut for `timevalue` if `t` is equal to zero.
 
 #### Examples
 
@@ -214,8 +219,6 @@ cashflow_example_6_present_value
 ```
 
     ## [1] 2.278265
-
-> **Note:** You can use `presentvalue` as a shortcut for `timevalue` if `t` is equal to zero.
 
 ### simpletimevalue(cf, i, method, t, as.cashflow)
 
@@ -259,7 +262,9 @@ cashflow_example_6_present_value_si
 
 Determine the present value of an infinite cash flow that returns $\frac{1}{n}$ for even periods and $\frac{1}{n^2}$ for odd periods, given $i = 2\%$.
 
-**Solution:**
+<details>
+
+<summary>🔎 Solution code</summary>
 
 ``` r
 cashflow_task_1_1 = cashflow(periods = 2*(1:10000), payments = 1/(2*(1:10000)))
@@ -273,16 +278,15 @@ timevalue(cashflow_task_1, i=0.02)
 
     ## [1] 23.93494
 
+</details>
+
 ### Exercise 2
 
 Find the difference between the current value of a 10-year 400 PLN annuity paid upfront and the value of the annuity at the moment of the last payment, assuming constant $i = 10\%$ simple interest.
 
-Podaj różnicę między wartością renty dziesięcioletniej płatnej z góry o
-wysokości 400 zł w chwili ostatniej wypłaty a teraz. Załóż
-oprocentowanie proste w wysokości i=0.10 i metodę przepływów
-równoważnych.
+<details>
 
-**Solution:**
+<summary>🔎 Solution code</summary>
 
 ``` r
 cashflow_task_2 = annuity(period = 10, amount = 400, due = TRUE)
@@ -302,11 +306,15 @@ simpletimevalue(cashflow_task_2, i = 0.1, t = 9, method="e") - simpletimevalue(c
 
     ## [1] 2587.577
 
+</details>
+
 ### Exercise 3
 
-What simple interest rate does a 10-year zero-coupon bond need to  to be equivalent to the same bond with $i = 5\%$ compound interest rate?
+What simple interest rate does a 10-year zero-coupon bond need to have for it to have the same value as the same bond under $i = 5\%$ compound interest rate?
 
-**Solution:**
+<details>
+
+<summary>🔎 Solution code</summary>
 
 ``` r
 # bonds with the same principal are equivalent for comparison, assuming 1
@@ -320,3 +328,5 @@ for (i in (1:1000)/1000) {
 ```
 
     ## [1] 0.063
+
+</details>
