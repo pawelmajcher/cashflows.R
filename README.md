@@ -1,5 +1,7 @@
 # cashflows.R
 
+Simple functions for visualizing and discounting cash flows (DCF) in R
+
 ## Czym jest cashflows.R?
 
 cashflows.R to niewielki skrypt w R, który ułatwia pracę nad przepływami pieniężnymi (cash flows). Umożliwia między innymi łączenie różnych przepływów, zapisywanie w formie przepływu rent i obligacji, a także obliczanie wartości przepływu w danym czasie według podanego oprocentowania prostego lub złożonego.
